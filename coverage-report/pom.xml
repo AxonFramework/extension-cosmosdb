@@ -42,6 +42,12 @@
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.axonframework.extensions.cosmosdb</groupId>
+            <artifactId>axon-cosmosdb-spring-boot-3-integrationtests</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
