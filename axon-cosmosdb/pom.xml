@@ -53,5 +53,12 @@
             <groupId>com.azure</groupId>
             <artifactId>azure-cosmos</artifactId>
         </dependency>
+
+        <!-- Other dependencies -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
