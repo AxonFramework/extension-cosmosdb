@@ -17,61 +17,34 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>org.axonframework.extensions.cosmosdb</groupId>
         <artifactId>axon-cosmosdb-parent</artifactId>
+        <groupId>org.axonframework.extensions.cosmosdb</groupId>
         <version>4.9.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>axon-cosmosdb-coverage-report</artifactId>
+    <artifactId>axon-cosmosdb-spring-boot-starter</artifactId>
 
-    <name>Axon Framework Cosmos DB Extension - Coverage Report Generator</name>
-    <description>Coverage Report Generator for the Axon Cosmos DB Extension</description>
-
-    <organization>
-        <name>AxonIQ B.V.</name>
-        <url>https://axoniq.io</url>
-    </organization>
+    <name>Spring Boot Starter for Axon Framework Cosmos DB Extension</name>
+    <description>
+        Spring Boot Starter module for the Axon Framework Cosmos DB Extension through Spring Boot.
+    </description>
 
     <dependencies>
         <dependency>
             <groupId>org.axonframework.extensions.cosmosdb</groupId>
-            <artifactId>axon-cosmosdb</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.axonframework.extensions.cosmosdb</groupId>
             <artifactId>axon-cosmosdb-spring-boot-autoconfigure</artifactId>
             <version>${project.version}</version>
-            <scope>runtime</scope>
         </dependency>
+
+        <!-- explicitly define transitive dependencies to increase version priority -->
+        <!-- see https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Transitive_Dependencies -->
         <dependency>
             <groupId>org.axonframework.extensions.cosmosdb</groupId>
-            <artifactId>axon-cosmosdb-spring-boot-3-integrationtests</artifactId>
+            <artifactId>axon-cosmosdb</artifactId>
             <version>${project.version}</version>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>report-aggregate</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>report-aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
