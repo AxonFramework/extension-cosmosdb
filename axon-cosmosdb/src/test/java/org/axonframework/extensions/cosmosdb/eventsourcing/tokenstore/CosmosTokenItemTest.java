@@ -55,8 +55,9 @@ class CosmosTokenItemTest {
     }
 
     @Test
-    void releaseWorksAndUpdatesTheTimeStamp() {
+    void releaseWorksAndUpdatesTheTimeStamp() throws InterruptedException {
         CosmosTokenItem cosmosTokenItem = fromToken(new GlobalSequenceTrackingToken(100L));
+        Thread.sleep(2L);
         CosmosTokenItem testSubject = cosmosTokenItem.release();
 
         assertNotNull(testSubject);
