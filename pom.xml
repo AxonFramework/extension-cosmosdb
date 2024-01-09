@@ -23,6 +23,8 @@
     <version>4.9.0-SNAPSHOT</version>
     <modules>
         <module>axon-cosmosdb</module>
+        <module>axon-cosmosdb-spring-boot-autoconfigure</module>
+        <module>axon-cosmosdb-spring-boot-starter</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -514,7 +516,7 @@
                 <jdk>[17,)</jdk>
             </activation>
             <modules>
-                <module>cosmosdb-spring-boot-3-integrationtests</module>
+                <module>axon-cosmosdb-spring-boot-3-integrationtests</module>
             </modules>
         </profile>
 
