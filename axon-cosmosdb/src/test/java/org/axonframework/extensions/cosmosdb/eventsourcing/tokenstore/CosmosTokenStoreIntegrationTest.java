@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-class CosmosTokenStoreTest {
+class CosmosTokenStoreIntegrationTest {
 
     @Container
     private static final CosmosDBEmulatorContainer COSMOS_CONTAINER = new CosmosDBEmulatorContainer(

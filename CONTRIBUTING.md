@@ -38,3 +38,10 @@ If you're using IntelliJ IDEA, you can download the code style
 definition [here](https://github.com/AxonFramework/AxonFramework/blob/master/axon_code_style.xml). Simply import the XML
 file in under "Settings -> Code Style -> Scheme -> Import Scheme". Doing so should make the code style selectable
 immediately.
+
+### Tests
+
+For now, the integration tests don't work on GitHub. So please both name new test classed with the suffix
+`IntegrationTest`. Also, please validate the integration tests locally using the `integration-test` profile, with for
+example: `mvn -Pintegration-test clean verify`. There is an
+[issue](https://github.com/AxonFramework/extension-cosmosdb/issues/2) to remove the work around.
