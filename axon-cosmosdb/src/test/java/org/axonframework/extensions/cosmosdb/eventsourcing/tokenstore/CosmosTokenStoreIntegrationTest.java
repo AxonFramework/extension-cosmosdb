@@ -122,7 +122,7 @@ class CosmosTokenStoreIntegrationTest {
     }
 
     @Test
-    void testInitializeTokens() {
+    void initializeTokens() {
         testSubject.initializeTokenSegments(PROCESSOR_ONE, TEST_SEGMENT_COUNT);
 
         int[] actual = testSubject.fetchSegments(PROCESSOR_ONE);
@@ -131,7 +131,7 @@ class CosmosTokenStoreIntegrationTest {
     }
 
     @Test
-    void testInitializeTokensAtGivenPosition() {
+    void initializeTokensAtGivenPosition() {
         testSubject.initializeTokenSegments(PROCESSOR_TWO, TEST_SEGMENT_COUNT, new GlobalSequenceTrackingToken(10));
 
         int[] actual = testSubject.fetchSegments(PROCESSOR_TWO);

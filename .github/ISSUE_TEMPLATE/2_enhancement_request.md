@@ -13,11 +13,11 @@ labels: 'Type: Enhancement'
 
 ### Current Behaviour
 
-<!-- Please share the current behaviour of the Mongo Extension around this topic, if applicable. -->
+<!-- Please share the current behaviour of the Cosmos DB Extension around this topic, if applicable. -->
 
 ### Wanted Behaviour
 
-<!-- Please describe the desired outcome through the Mongo Extension around the suggested enhancement. -->
+<!-- Please describe the desired outcome through the Cosmos DB Extension around the suggested enhancement. -->
 
 ### Possible Workarounds
 

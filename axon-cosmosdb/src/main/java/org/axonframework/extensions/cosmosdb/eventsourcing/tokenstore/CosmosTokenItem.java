@@ -70,7 +70,7 @@ public class CosmosTokenItem {
     }
 
     /**
-     * Creates a new token when the owner is null.
+     * Creates a new token where the owner is null.
      *
      * @return a {@link CosmosTokenItem} with the owner set to null, and a new timestamp.
      */
@@ -84,7 +84,7 @@ public class CosmosTokenItem {
     }
 
     /**
-     * Creates a new token when the owner set tp the given value. Will be used to claim a token.
+     * Creates a new token with the owner set to the given value. This task is used to claim a token.
      *
      * @param owner the {@link String} of the new owner.
      * @return a {@link CosmosTokenItem} with the owner set to null, and a new timestamp.
@@ -99,7 +99,7 @@ public class CosmosTokenItem {
     }
 
     /**
-     * Creates a new token when the same values, except the timestamp.
+     * Creates a new token with the same values except the timestamp.
      *
      * @return a {@link CosmosTokenItem} with a new timestamp.
      */

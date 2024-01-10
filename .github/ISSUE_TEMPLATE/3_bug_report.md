@@ -11,7 +11,7 @@ labels: 'Type: Bug'
 
 * Axon Framework version:
 * JDK version:
-* Mongo Extension version:
+* Cosmos DB Extension version:
 * Complete executable reproducer if available (e.g. GitHub Repo):
 
 ### Steps to reproduce
