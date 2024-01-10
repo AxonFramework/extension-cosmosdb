@@ -38,7 +38,8 @@ public class CosmosTokenItem {
     /**
      * Needed for Jackson serialisation, don't use in code.
      */
-    public CosmosTokenItem() {
+    @SuppressWarnings("unused")
+    CosmosTokenItem() {
     }
 
     /**
@@ -166,7 +167,8 @@ public class CosmosTokenItem {
      *
      * @param id the {@link String} representing the id in the serialized format
      */
-    public void setId(String id) {
+    @SuppressWarnings("unused")
+    void setId(String id) {
         this.id = id;
     }
 
@@ -175,7 +177,8 @@ public class CosmosTokenItem {
      *
      * @param token the {@code byte[]} representing the serialized token in the serialized format
      */
-    public void setToken(byte[] token) {
+    @SuppressWarnings("unused")
+    void setToken(byte[] token) {
         this.token = token;
     }
 
@@ -184,7 +187,8 @@ public class CosmosTokenItem {
      *
      * @param tokenType the {@link String} representing the token type in the serialized format
      */
-    public void setTokenType(String tokenType) {
+    @SuppressWarnings("unused")
+    void setTokenType(String tokenType) {
         this.tokenType = tokenType;
     }
 
@@ -193,7 +197,8 @@ public class CosmosTokenItem {
      *
      * @param owner the {@link String} representing the owner in the serialized format
      */
-    public void setOwner(String owner) {
+    @SuppressWarnings("unused")
+    void setOwner(String owner) {
         this.owner = owner;
     }
 
@@ -202,7 +207,8 @@ public class CosmosTokenItem {
      *
      * @param timestamp the {@link Instant} representing the timestamp in the serialized format
      */
-    public void setTimestamp(Instant timestamp) {
+    @SuppressWarnings("unused")
+    void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 
