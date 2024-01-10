@@ -23,6 +23,10 @@ import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.junit.jupiter.api.*;
 
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CosmosTokenItemTest {
@@ -56,14 +60,17 @@ class CosmosTokenItemTest {
     }
 
     @Test
-    void releaseWorksAndUpdatesTheTimeStamp() throws InterruptedException {
+    void releaseWorksAndUpdatesTheTimeStamp() {
         CosmosTokenItem cosmosTokenItem = fromToken(new GlobalSequenceTrackingToken(100L));
-        Thread.sleep(2L);
-        CosmosTokenItem testSubject = cosmosTokenItem.release();
-
-        assertNotNull(testSubject);
-        assertNull(testSubject.getOwner());
-        assertNotEquals(cosmosTokenItem.getTimestamp(), testSubject.getTimestamp());
+        AtomicReference<CosmosTokenItem> testSubject = new AtomicReference<>();
+        await().pollDelay(Duration.ofMillis(2L))
+               .atMost(Duration.ofMillis(200L))
+               .untilAsserted(
+                       () -> assertDoesNotThrow(() -> testSubject.set(cosmosTokenItem.release()))
+               );
+        assertNotNull(testSubject.get());
+        assertNull(testSubject.get().getOwner());
+        assertNotEquals(cosmosTokenItem.getTimestamp(), testSubject.get().getTimestamp());
     }
 
     private CosmosTokenItem fromToken(TrackingToken token) {
