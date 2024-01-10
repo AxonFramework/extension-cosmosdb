@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
@@ -435,7 +436,7 @@ class CosmosTokenStoreIntegrationTest {
     }
 
     @Test
-    void shouldBeAbleToStealAfterTimeoutHasPassed() throws InterruptedException {
+    void shouldBeAbleToStealAfterTimeoutHasPassed() {
         TokenStore storeWithDecreasedTimeout = CosmosTokenStore.builder()
                                                                .claimTimeout(Duration.ofMillis(200L))
                                                                .databaseName(DATABASE_NAME)
@@ -449,8 +450,14 @@ class CosmosTokenStoreIntegrationTest {
         testSubject.storeToken(testToken, PROCESSOR_ONE, TEST_SEGMENT);
         assertThrows(UnableToClaimTokenException.class,
                      () -> storeWithDecreasedTimeout.fetchToken(PROCESSOR_ONE, TEST_SEGMENT));
-        Thread.sleep(200L);
-        assertDoesNotThrow(() -> storeWithDecreasedTimeout.fetchToken(PROCESSOR_ONE, TEST_SEGMENT));
+        await()
+                .pollDelay(Duration.ofMillis(200L))
+                .atMost(Duration.ofMillis(400L))
+                .untilAsserted(
+                        () -> assertDoesNotThrow(
+                                () -> storeWithDecreasedTimeout.fetchToken(PROCESSOR_ONE, TEST_SEGMENT)
+                        )
+                );
     }
 
     @Test
@@ -486,8 +493,8 @@ class CosmosTokenStoreIntegrationTest {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         AtomicReference<T> r1 = new AtomicReference<>(null);
         AtomicReference<T> r2 = new AtomicReference<>(null);
-        executor.execute(() -> r1.set(s1.get()));
-        executor.execute(() -> r2.set(s2.get()));
+        executor.execute(() -> r1.set(getIgnoringErrors(s1)));
+        executor.execute(() -> r2.set(getIgnoringErrors(s2)));
         executor.shutdown();
         boolean done = executor.awaitTermination(6L, TimeUnit.SECONDS);
         assertTrue(done, "should complete in 6 seconds");
@@ -497,6 +504,14 @@ class CosmosTokenStoreIntegrationTest {
         } else {
             assertNull(r2.get(), "only one of the results should be valid");
             return r1.get();
+        }
+    }
+
+    private <T> T getIgnoringErrors(Supplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            return null;
         }
     }
 

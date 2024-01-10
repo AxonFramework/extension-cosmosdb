@@ -54,6 +54,13 @@
             <artifactId>azure-cosmos</artifactId>
         </dependency>
 
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Other dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
