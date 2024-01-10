@@ -35,6 +35,8 @@ import org.axonframework.eventhandling.tokenstore.UnableToRetrieveIdentifierExce
 import org.axonframework.serialization.SerializedObject;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.SimpleSerializedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.lang.management.ManagementFactory;
@@ -57,18 +59,21 @@ import static org.axonframework.common.BuilderUtils.assertNonNull;
 
 /**
  * An implementation of the {@link TokenStore} that allows you to store and retrieve tracking tokens with Cosmos DB.
+ * It
  *
  * @author Gerard Klijs-Nefkens
  * @since 4.9.0
  */
 public class CosmosTokenStore implements TokenStore {
 
+    private static final Logger logger = LoggerFactory.getLogger(CosmosTokenStore.class);
     private static final String ID_PARTITION_KEY = "/id";
     private static final String STORAGE_IDENTIFIER_NAME = "id";
     private static final String STORAGE_IDENTIFIER_ID = "42";
     private static final String ALL_QUERY = "SELECT * FROM root i";
     private static final String NO_CURRENT_ITEM_MESSAGE = "Could not claim token.\n" +
-            "Current item could not be retrieved successfully.\n";
+            "Current item could not be retrieved successfully.\n" +
+            "You likely need to initialize the token first or configure the database name.";
     private static final String CLAIM_EXCEPTION_MESSAGE_FORMAT = "Could not claim token.\n" +
             "Current owner is: '%s' and not: '%s'.\n" +
             "Time in milliseconds until token can be claimed: '%d'.";
@@ -108,7 +113,7 @@ public class CosmosTokenStore implements TokenStore {
      * <p>
      * The {@code claimTimeout} is defaulted to a 10 seconds duration (by using {@link Duration#ofSeconds(long)},
      * {@code nodeId} is defaulted to the {@code ManagementFactory#getRuntimeMXBean#getName} output, the {@link String}
-     * database name defaults to 'axon'. The {@link CosmosAsyncClient} and {@link Serializer} are <b>hard
+     * database name defaults to 'axon-tokenstore'. The {@link CosmosAsyncClient} and {@link Serializer} are <b>hard
      * requirements</b> and as such should be provided.
      *
      * @return a Builder to be able to crete a {@link CosmosTokenStore}
@@ -145,12 +150,7 @@ public class CosmosTokenStore implements TokenStore {
                     .flatMap(current -> {
                         validateCurrent(current.getItem());
                         CosmosTokenItem newItem = createNewItem(token, segment);
-                        return getContainer(processorName).replaceItem(
-                                newItem,
-                                newItem.getId(),
-                                new PartitionKey(newItem.getId()),
-                                new CosmosItemRequestOptions().setIfMatchETag(current.getETag())
-                        );
+                        return replaceWithConcurrencyControl(processorName, current, newItem);
                     })
                     .block();
         } catch (UnableToClaimTokenException e) {
@@ -165,12 +165,7 @@ public class CosmosTokenStore implements TokenStore {
         CosmosItemResponse<CosmosTokenItem> response = getCurrent(processorName, segment)
                 .flatMap(current -> {
                     validateCurrent(current.getItem());
-                    return getContainer(processorName).replaceItem(
-                            current.getItem().withOwner(nodeId),
-                            current.getItem().getId(),
-                            new PartitionKey(current.getItem().getId()),
-                            new CosmosItemRequestOptions().setIfMatchETag(current.getETag())
-                    );
+                    return replaceWithConcurrencyControl(processorName, current, current.getItem().withOwner(nodeId));
                 })
                 .flatMap(r -> {
                     if (r.getStatusCode() == 200) {
@@ -196,12 +191,7 @@ public class CosmosTokenStore implements TokenStore {
                             return Mono.error(new UnableToClaimTokenException(
                                     String.format(CANT_EXTEND_MESSAGE_FORMAT, owner, nodeId)));
                         }
-                        return getContainer(processorName).replaceItem(
-                                current.getItem().extend(),
-                                current.getItem().getId(),
-                                new PartitionKey(current.getItem().getId()),
-                                new CosmosItemRequestOptions().setIfMatchETag(current.getETag())
-                        );
+                        return replaceWithConcurrencyControl(processorName, current, current.getItem().extend());
                     })
                     .block();
         } catch (UnableToClaimTokenException e) {
@@ -213,17 +203,16 @@ public class CosmosTokenStore implements TokenStore {
 
     @Override
     public void releaseClaim(@Nonnull String processorName, int segment) {
-        getCurrent(processorName, segment)
-                .flatMap(current -> {
-                    validateCurrent(current.getItem());
-                    return getContainer(processorName).replaceItem(
-                            current.getItem().release(),
-                            current.getItem().getId(),
-                            new PartitionKey(current.getItem().getId()),
-                            new CosmosItemRequestOptions().setIfMatchETag(current.getETag())
-                    );
-                })
-                .block();
+        try {
+            getCurrent(processorName, segment)
+                    .flatMap(current -> {
+                        validateCurrent(current.getItem());
+                        return replaceWithConcurrencyControl(processorName, current, current.getItem().release());
+                    })
+                    .block();
+        } catch (Exception e) {
+            logger.warn("Failed to release token. {}", e.getMessage());
+        }
     }
 
     @Override
@@ -231,9 +220,7 @@ public class CosmosTokenStore implements TokenStore {
             throws UnableToInitializeTokenException {
         try {
             getContainer(processorName).createItem(
-                    createInitialItem(token, segment),
-                    new PartitionKey(Integer.toString(segment)),
-                    new CosmosItemRequestOptions().setIfMatchETag(null)
+                    createInitialItem(token, segment)
             ).block();
         } catch (Exception e) {
             throw new UnableToInitializeTokenException("Could not initialize token.", e);
@@ -250,9 +237,9 @@ public class CosmosTokenStore implements TokenStore {
                             return Mono.error(new UnableToClaimTokenException(
                                     String.format(CANT_DELETE_MESSAGE_FORMAT, owner, nodeId)));
                         }
-                        return getContainer(processorName).deleteAllItemsByPartitionKey(
-                                new PartitionKey(Integer.toString(segment)),
-                                new CosmosItemRequestOptions().setIfMatchETag(null)
+                        return getContainer(processorName).deleteItem(
+                                current.getItem().getId(),
+                                new PartitionKey(current.getItem().getId())
                         );
                     })
                     .block();
@@ -277,13 +264,9 @@ public class CosmosTokenStore implements TokenStore {
                 .block();
         if (isNull(segments)) {
             return new int[0];
+        } else {
+            return segments.stream().mapToInt(i -> i).toArray();
         }
-        // toArray doesn't work because of autoboxing limitations
-        int[] ints = new int[segments.size()];
-        for (int i = 0; i < ints.length; i++) {
-            ints[i] = segments.get(i);
-        }
-        return ints;
     }
 
     @Override
@@ -323,6 +306,19 @@ public class CosmosTokenStore implements TokenStore {
     private CosmosTokenItem createNewItem(TrackingToken token, int segment) {
         SerializedObject<byte[]> serializedObject = serializer.serialize(token, byte[].class);
         return new CosmosTokenItem(segment, serializedObject.getData(), serializedObject.getType().getName(), nodeId);
+    }
+
+    private Mono<CosmosItemResponse<CosmosTokenItem>> replaceWithConcurrencyControl(
+            String processorName,
+            CosmosItemResponse<CosmosTokenItem> current,
+            CosmosTokenItem newItem
+    ) {
+        return getContainer(processorName).replaceItem(
+                newItem,
+                current.getItem().getId(),
+                new PartitionKey(current.getItem().getId()),
+                new CosmosItemRequestOptions().setIfMatchETag(current.getETag())
+        );
     }
 
     private CosmosTokenItem createInitialItem(@Nullable TrackingToken token, int segment) {
@@ -381,9 +377,7 @@ public class CosmosTokenStore implements TokenStore {
         map.put(STORAGE_IDENTIFIER_NAME, UUID.randomUUID().toString());
         TrackingToken token = new ConfigToken(map);
         getContainer(STORAGE_IDENTIFIER_NAME).createItem(
-                createInitialItem(token, Integer.parseInt(STORAGE_IDENTIFIER_ID)),
-                new PartitionKey(STORAGE_IDENTIFIER_ID),
-                new CosmosItemRequestOptions().setIfMatchETag(null)
+                createInitialItem(token, Integer.parseInt(STORAGE_IDENTIFIER_ID))
         ).block();
     }
 
@@ -419,13 +413,13 @@ public class CosmosTokenStore implements TokenStore {
      * </p>
      * The {@code claimTimeout} is defaulted to a 10 seconds duration (by using {@link Duration#ofSeconds(long)},
      * {@code nodeId} is defaulted to the {@code ManagementFactory#getRuntimeMXBean#getName} output, the {@link String}
-     * database name defaults to 'axon'. The {@link CosmosAsyncClient} and {@link Serializer} are <b>hard
+     * database name defaults to 'axon-tokenstore'. The {@link CosmosAsyncClient} and {@link Serializer} are <b>hard
      * requirements</b> and as such should be provided.
      */
     public static class Builder {
 
         private CosmosAsyncClient client;
-        private String databaseName = "axon";
+        private String databaseName = "axon-tokenstore";
         private Serializer serializer;
         private TemporalAmount claimTimeout = Duration.ofSeconds(10);
         private String nodeId = ManagementFactory.getRuntimeMXBean().getName();

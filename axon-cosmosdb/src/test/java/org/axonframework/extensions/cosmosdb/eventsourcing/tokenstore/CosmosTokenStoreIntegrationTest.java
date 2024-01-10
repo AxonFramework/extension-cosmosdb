@@ -200,6 +200,15 @@ class CosmosTokenStoreIntegrationTest {
     }
 
     @Test
+    void releaseWhenNotTheOwnerShouldNotThrow() {
+        testSubject.initializeTokenSegments(PROCESSOR_ONE, TEST_SEGMENT_COUNT);
+        TrackingToken token = new GlobalSequenceTrackingToken(1L);
+        testSubject.storeToken(token, PROCESSOR_ONE, TEST_SEGMENT);
+
+        assertDoesNotThrow(() -> otherTokenStore.releaseClaim(PROCESSOR_ONE, TEST_SEGMENT));
+    }
+
+    @Test
     void fetchSegmentsShouldReturnInitializedOnes() {
         testSubject.initializeTokenSegments(PROCESSOR_ONE, 3);
         testSubject.initializeTokenSegments(PROCESSOR_TWO, 1);

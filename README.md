@@ -17,8 +17,8 @@ The main focus can thus become the business functionality.
 
 This repository provides an extension to the Axon
 Framework: [Cosmos DB](https://learn.microsoft.com/en-us/azure/cosmos-db/introduction).
-It provides functionality to leverage Kafka to send and receive Events from one (micro)service to another.
-Thus, it does not include command or query distribution, nor event store specifics required for event sourcing.
+It provides functionality to us a token store based on Cosmos DB, such that the projection and the token store are in
+the same repository.
 
 For more information on anything Axon, please visit our website, [http://axoniq.io](http://axoniq.io).
 
