@@ -1,8 +1,8 @@
 # Axon Framework - Cosmos DB Extension
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.axonframework.extensions.cosmosdb/axon-cosmosdb/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.axonframework.extensions.kafka/axon-kafka/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.axonframework.extensions.cosmosdb/axon-cosmosdb/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.axonframework.extensions.cosmosdb/axon-cosmosdb/)
 ![Build Status](https://github.com/AxonFramework/extension-cosmosdb/workflows/Cosmos%20DB%20Extension/badge.svg?branch=master)
-[![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=AxonFramework_extension-cosmosdb&metric=alert_status)](https://sonarcloud.io/dashboard?id=AxonFramework_extension-kafka)
+[![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=AxonFramework_extension-cosmosdb&metric=alert_status)](https://sonarcloud.io/dashboard?id=AxonFramework_extension-cosmosdb)
 
 Axon Framework is a framework for building evolutionary, event-driven microservice systems,
 based on the principles of Domain-Driven Design, Command-Query Responsibility Separation (CQRS), and Event Sourcing.
@@ -46,7 +46,7 @@ There are a couple of things to consider when you're traversing anything Axon:
 
 ## Feature requests and issue reporting
 
-We use GitHub's [issue tracking system](https://github.com/AxonFramework/extension-kafka/issues) for new feature
+We use GitHub's [issue tracking system](https://github.com/AxonFramework/extension-cosmosdb/issues) for new feature
 request, extension enhancements and bugs.
 Prior to filing an issue, please verify that it's not already reported by someone else.
 

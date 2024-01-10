@@ -449,7 +449,7 @@ public class CosmosTokenStore implements TokenStore {
          * @return the current Builder instance, for fluent interfacing
          */
         public Builder databaseName(String databaseName) {
-            assertNonEmpty(databaseName, "database name should not be null or empty");
+            assertNonEmpty(databaseName, "The database name should not be null or empty");
             this.databaseName = databaseName;
             return this;
         }

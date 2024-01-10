@@ -414,7 +414,7 @@
                     <localCheckout>true</localCheckout>
                     <pushChanges>false</pushChanges>
                     <releaseProfiles>release-sign-artifacts</releaseProfiles>
-                    <tagNameFormat>axon-mongo-@{project.version}</tagNameFormat>
+                    <tagNameFormat>axon-cosmosdb-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
             <plugin>
