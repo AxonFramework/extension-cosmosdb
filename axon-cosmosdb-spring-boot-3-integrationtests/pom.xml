@@ -45,6 +45,9 @@
         <jacoco-maven.version>0.8.11</jacoco-maven.version>
         <maven-jar.version>3.3.0</maven-jar.version>
         <maven-surefire.version>3.2.3</maven-surefire.version>
+        <!-- Test matcher -->
+        <pattern.class.test>**/*Test.java</pattern.class.test>
+        <pattern.class.integration-test>**/*IntegrationTest.java</pattern.class.integration-test>
     </properties>
 
     <dependencies>
@@ -164,6 +167,18 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <!-- test -->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>${pattern.class.test}</include>
+                    </includes>
+                    <excludes>
+                        <exclude>${pattern.class.integration-test}</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -206,6 +221,40 @@
                         <configuration>
                             <skipTests>true</skipTests>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>integration-test</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <defaultGoal>verify</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>run-integration-tests</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>${pattern.class.integration-test}</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
