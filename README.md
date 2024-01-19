@@ -17,8 +17,7 @@ The main focus can thus become the business functionality.
 
 This repository provides an extension to the Axon
 Framework: [Cosmos DB](https://learn.microsoft.com/en-us/azure/cosmos-db/introduction).
-It provides functionality to us a token store based on Cosmos DB, such that the projection and the token store are in
-the same repository.
+It provides functionality to use a token store based on Cosmos DB, such that your projections maintained in Cosmos DB are combined with the tokens in the same repository.
 
 For more information on anything Axon, please visit our website, [http://axoniq.io](http://axoniq.io).
 
