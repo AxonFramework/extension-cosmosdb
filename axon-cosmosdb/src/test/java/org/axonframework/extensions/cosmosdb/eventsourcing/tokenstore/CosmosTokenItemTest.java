@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CosmosTokenItemTest {
 
     private final Serializer serializer = JacksonSerializer.defaultSerializer();
+    private static final String DEFAULT_PROCESSOR_NAME = "processorName";
     private static final int DEFAULT_SEGMENT = 2;
     private static final String DEFAULT_OWNER = "42";
 
@@ -67,7 +68,8 @@ class CosmosTokenItemTest {
 
     private CosmosTokenItem fromToken(TrackingToken token) {
         SerializedObject<byte[]> serializedObject = serializer.serialize(token, byte[].class);
-        return new CosmosTokenItem(DEFAULT_SEGMENT,
+        return new CosmosTokenItem(DEFAULT_PROCESSOR_NAME,
+                                   DEFAULT_SEGMENT,
                                    serializedObject.getData(),
                                    serializedObject.getType().getName(),
                                    DEFAULT_OWNER);
@@ -75,7 +77,8 @@ class CosmosTokenItemTest {
 
     private CosmosTokenItem initialToken(TrackingToken token) {
         SerializedObject<byte[]> serializedObject = serializer.serialize(token, byte[].class);
-        return CosmosTokenItem.initialToken(DEFAULT_SEGMENT,
+        return CosmosTokenItem.initialToken(DEFAULT_PROCESSOR_NAME,
+                                            DEFAULT_SEGMENT,
                                             serializedObject.getData(),
                                             serializedObject.getType().getName());
     }

@@ -61,6 +61,7 @@ class CosmosTokenStoreIntegrationTest {
 
     private final Serializer serializer = JacksonSerializer.defaultSerializer();
     private static final String DATABASE_NAME = "someAxon";
+    private static final String CONTAINER_NAME = "someTokenstore";
     private static final String TEST_OWNER = "testOwner";
     private static final String OTHER_OWNER = "otherOwner";
     private static final String PROCESSOR_ONE = "pg1";
@@ -438,6 +439,7 @@ class CosmosTokenStoreIntegrationTest {
         TokenStore storeWithDecreasedTimeout = CosmosTokenStore.builder()
                                                                .claimTimeout(Duration.ofMillis(200L))
                                                                .databaseName(DATABASE_NAME)
+                                                               .containerName(CONTAINER_NAME)
                                                                .client(getClient())
                                                                .serializer(serializer)
                                                                .nodeId(OTHER_OWNER)
@@ -474,6 +476,7 @@ class CosmosTokenStoreIntegrationTest {
                 .builder()
                 .client(getClient())
                 .databaseName(DATABASE_NAME)
+                .containerName(CONTAINER_NAME)
                 .serializer(serializer)
                 .nodeId(owner)
                 .build();
