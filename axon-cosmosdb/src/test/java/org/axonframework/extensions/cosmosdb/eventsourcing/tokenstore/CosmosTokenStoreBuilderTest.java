@@ -26,6 +26,11 @@ class CosmosTokenStoreBuilderTest {
     }
 
     @Test
+    void cantSetContainerNameToEmptyValue() {
+        assertThrows(AxonConfigurationException.class, () -> testSubject.containerName(""));
+    }
+
+    @Test
     void cantSetClaimTimeOutToNull() {
         assertThrows(AxonConfigurationException.class, () -> testSubject.claimTimeout(null));
     }

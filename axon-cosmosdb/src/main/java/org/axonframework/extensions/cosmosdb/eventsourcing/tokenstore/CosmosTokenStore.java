@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,8 +57,9 @@ import static org.axonframework.common.BuilderUtils.assertNonEmpty;
 import static org.axonframework.common.BuilderUtils.assertNonNull;
 
 /**
- * An implementation of the {@link TokenStore} that allows you to store and retrieve tracking tokens with Cosmos DB.
- * It
+ * An implementation of the {@link TokenStore} that allows you to store and retrieve tracking tokens with Cosmos DB. It
+ * allows to set a database and container name in which all the tokens are kept. If the database and/or the container
+ * don't exist yet, they will be created.
  *
  * @author Gerard Klijs-Nefkens
  * @since 4.9.0
@@ -68,9 +68,12 @@ public class CosmosTokenStore implements TokenStore {
 
     private static final Logger logger = LoggerFactory.getLogger(CosmosTokenStore.class);
     private static final String ID_PARTITION_KEY = "/id";
-    private static final String STORAGE_IDENTIFIER_NAME = "id";
-    private static final String STORAGE_IDENTIFIER_ID = "42";
-    private static final String ALL_QUERY = "SELECT * FROM root i";
+    private static final String STORAGE_IDENTIFIER_PROCESSING_GROUP = "__STORAGE_IDENTIFIER__";
+    private static final int STORAGE_IDENTIFIER_SEGMENT = 42;
+    private static final String STORAGE_IDENTIFIER_ID =
+            STORAGE_IDENTIFIER_PROCESSING_GROUP + STORAGE_IDENTIFIER_SEGMENT;
+    private static final String STORAGE_IDENTIFIER_KEY = "id";
+    private static final String ALL_PROCESSING_NAME_QUERY_FORMAT = "SELECT * FROM item WHERE item.processorName = '%s'";
     private static final String NO_CURRENT_ITEM_MESSAGE = "Could not claim token.\n" +
             "Current item could not be retrieved successfully.\n" +
             "You likely need to initialize the token first or configure the database name.";
@@ -84,9 +87,8 @@ public class CosmosTokenStore implements TokenStore {
             "Not the owner of the token, so can't extend the claim.\n" +
                     "Current owner is: '%s' and not: '%s'.";
 
-    private final Map<String, CosmosAsyncContainer> containers = new ConcurrentHashMap<>();
+    private final CosmosAsyncContainer container;
     private final CosmosAsyncClient client;
-    private final CosmosAsyncDatabase database;
     private final Serializer serializer;
     private final TemporalAmount claimTimeout;
     private final String nodeId;
@@ -105,7 +107,7 @@ public class CosmosTokenStore implements TokenStore {
         this.serializer = builder.serializer;
         this.claimTimeout = builder.claimTimeout;
         this.nodeId = builder.nodeId;
-        this.database = createDatabaseIfNotExists(builder.databaseName);
+        this.container = getContainer(builder.databaseName, builder.containerName);
     }
 
     /**
@@ -113,8 +115,8 @@ public class CosmosTokenStore implements TokenStore {
      * <p>
      * The {@code claimTimeout} is defaulted to a 10 seconds duration (by using {@link Duration#ofSeconds(long)},
      * {@code nodeId} is defaulted to the {@code ManagementFactory#getRuntimeMXBean#getName} output, the {@link String}
-     * database name defaults to 'axon-tokenstore'. The {@link CosmosAsyncClient} and {@link Serializer} are <b>hard
-     * requirements</b> and as such should be provided.
+     * database name defaults to 'axon', the {@link String} container name defaults to 'tokenstore'. The
+     * {@link CosmosAsyncClient} and {@link Serializer} are <b>hard requirements</b> and as such should be provided.
      *
      * @return a Builder to be able to crete a {@link CosmosTokenStore}
      */
@@ -149,8 +151,8 @@ public class CosmosTokenStore implements TokenStore {
             getCurrent(processorName, segment)
                     .flatMap(current -> {
                         validateCurrent(current.getItem());
-                        CosmosTokenItem newItem = createNewItem(token, segment);
-                        return replaceWithConcurrencyControl(processorName, current, newItem);
+                        CosmosTokenItem newItem = createNewItem(token, processorName, segment);
+                        return replaceWithConcurrencyControl(current, newItem);
                     })
                     .block();
         } catch (UnableToClaimTokenException e) {
@@ -165,7 +167,7 @@ public class CosmosTokenStore implements TokenStore {
         CosmosItemResponse<CosmosTokenItem> response = getCurrent(processorName, segment)
                 .flatMap(current -> {
                     validateCurrent(current.getItem());
-                    return replaceWithConcurrencyControl(processorName, current, current.getItem().withOwner(nodeId));
+                    return replaceWithConcurrencyControl(current, current.getItem().withOwner(nodeId));
                 })
                 .flatMap(r -> {
                     if (r.getStatusCode() == 200) {
@@ -191,7 +193,7 @@ public class CosmosTokenStore implements TokenStore {
                             return Mono.error(new UnableToClaimTokenException(
                                     String.format(CANT_EXTEND_MESSAGE_FORMAT, owner, nodeId)));
                         }
-                        return replaceWithConcurrencyControl(processorName, current, current.getItem().extend());
+                        return replaceWithConcurrencyControl(current, current.getItem().extend());
                     })
                     .block();
         } catch (UnableToClaimTokenException e) {
@@ -207,7 +209,7 @@ public class CosmosTokenStore implements TokenStore {
             getCurrent(processorName, segment)
                     .flatMap(current -> {
                         validateCurrent(current.getItem());
-                        return replaceWithConcurrencyControl(processorName, current, current.getItem().release());
+                        return replaceWithConcurrencyControl(current, current.getItem().release());
                     })
                     .block();
         } catch (Exception e) {
@@ -219,8 +221,7 @@ public class CosmosTokenStore implements TokenStore {
     public void initializeSegment(@Nullable TrackingToken token, @Nonnull String processorName, int segment)
             throws UnableToInitializeTokenException {
         try {
-            getContainer(processorName).createItem(
-                    createInitialItem(token, segment)
+            container.createItem(createInitialItem(token, processorName, segment)
             ).block();
         } catch (Exception e) {
             throw new UnableToInitializeTokenException("Could not initialize token.", e);
@@ -237,7 +238,7 @@ public class CosmosTokenStore implements TokenStore {
                             return Mono.error(new UnableToClaimTokenException(
                                     String.format(CANT_DELETE_MESSAGE_FORMAT, owner, nodeId)));
                         }
-                        return getContainer(processorName).deleteItem(
+                        return container.deleteItem(
                                 current.getItem().getId(),
                                 new PartitionKey(current.getItem().getId())
                         );
@@ -257,8 +258,9 @@ public class CosmosTokenStore implements TokenStore {
 
     @Override
     public int[] fetchSegments(@Nonnull String processorName) {
-        List<Integer> segments = getContainer(processorName)
-                .queryItems(ALL_QUERY, CosmosTokenItem.class)
+        String query = String.format(ALL_PROCESSING_NAME_QUERY_FORMAT, processorName);
+        List<Integer> segments = container
+                .queryItems(query, CosmosTokenItem.class)
                 .map(CosmosTokenItem::getSegment)
                 .collectList()
                 .block();
@@ -272,48 +274,56 @@ public class CosmosTokenStore implements TokenStore {
     @Override
     public List<Segment> fetchAvailableSegments(@Nonnull String processorName) {
         int[] all = fetchSegments(processorName);
-        return getContainer(processorName)
-                .queryItems(ALL_QUERY, CosmosTokenItem.class)
+        String query = String.format(ALL_PROCESSING_NAME_QUERY_FORMAT, processorName);
+        return container
+                .queryItems(query, CosmosTokenItem.class)
                 .filter(this::claimable)
                 .map(item -> Segment.computeSegment(item.getSegment(), all))
                 .collectList()
                 .block();
     }
 
+    private CosmosAsyncContainer getContainer(@Nonnull String databaseName, @Nonnull String containerName) {
+        CosmosAsyncDatabase database = createDatabaseIfNotExists(databaseName);
+        return createContainerIfNotExists(database, containerName);
+    }
+
+    @Nonnull
     private CosmosAsyncDatabase createDatabaseIfNotExists(String databaseName) {
-        return client
+        CosmosAsyncDatabase database = client
                 .createDatabaseIfNotExists(databaseName)
                 .map(r -> client.getDatabase(r.getProperties().getId()))
                 .block();
+        assert database != null;
+        return database;
     }
 
-    private CosmosAsyncContainer createContainerIfNotExists(String processorName) {
-        return database.createContainerIfNotExists(processorName, ID_PARTITION_KEY)
+    private CosmosAsyncContainer createContainerIfNotExists(@Nonnull CosmosAsyncDatabase database,
+                                                            @Nonnull String containerName) {
+        return database.createContainerIfNotExists(containerName, ID_PARTITION_KEY)
                        .map(r -> database.getContainer(r.getProperties().getId()))
                        .block();
     }
 
-    private CosmosAsyncContainer getContainer(String processorName) {
-        return containers.compute(processorName, (k, v) -> (v == null) ? createContainerIfNotExists(processorName) : v);
-    }
-
     private Mono<CosmosItemResponse<CosmosTokenItem>> getCurrent(String processorName, int segment) {
-        String id = Integer.toString(segment);
-        return getContainer(processorName)
-                .readItem(id, new PartitionKey(id), CosmosTokenItem.class);
+        String id = processorName + segment;
+        return container.readItem(id, new PartitionKey(id), CosmosTokenItem.class);
     }
 
-    private CosmosTokenItem createNewItem(TrackingToken token, int segment) {
+    private CosmosTokenItem createNewItem(TrackingToken token, String processorName, int segment) {
         SerializedObject<byte[]> serializedObject = serializer.serialize(token, byte[].class);
-        return new CosmosTokenItem(segment, serializedObject.getData(), serializedObject.getType().getName(), nodeId);
+        return new CosmosTokenItem(processorName,
+                                   segment,
+                                   serializedObject.getData(),
+                                   serializedObject.getType().getName(),
+                                   nodeId);
     }
 
     private Mono<CosmosItemResponse<CosmosTokenItem>> replaceWithConcurrencyControl(
-            String processorName,
             CosmosItemResponse<CosmosTokenItem> current,
             CosmosTokenItem newItem
     ) {
-        return getContainer(processorName).replaceItem(
+        return container.replaceItem(
                 newItem,
                 current.getItem().getId(),
                 new PartitionKey(current.getItem().getId()),
@@ -321,12 +331,13 @@ public class CosmosTokenStore implements TokenStore {
         );
     }
 
-    private CosmosTokenItem createInitialItem(@Nullable TrackingToken token, int segment) {
+    private CosmosTokenItem createInitialItem(@Nullable TrackingToken token, String processorName, int segment) {
         if (isNull(token)) {
-            return CosmosTokenItem.initialToken(segment, null, null);
+            return CosmosTokenItem.initialToken(processorName, segment, null, null);
         } else {
             SerializedObject<byte[]> serializedObject = serializer.serialize(token, byte[].class);
-            return CosmosTokenItem.initialToken(segment,
+            return CosmosTokenItem.initialToken(processorName,
+                                                segment,
                                                 serializedObject.getData(),
                                                 serializedObject.getType().getName());
         }
@@ -374,17 +385,17 @@ public class CosmosTokenStore implements TokenStore {
 
     private void setStorageIdentifier() {
         Map<String, String> map = new HashMap<>();
-        map.put(STORAGE_IDENTIFIER_NAME, UUID.randomUUID().toString());
+        map.put(STORAGE_IDENTIFIER_KEY, UUID.randomUUID().toString());
         TrackingToken token = new ConfigToken(map);
-        getContainer(STORAGE_IDENTIFIER_NAME).createItem(
-                createInitialItem(token, Integer.parseInt(STORAGE_IDENTIFIER_ID))
+        container.createItem(
+                createInitialItem(token, STORAGE_IDENTIFIER_PROCESSING_GROUP, STORAGE_IDENTIFIER_SEGMENT)
         ).block();
     }
 
     @Override
     public Optional<String> retrieveStorageIdentifier() throws UnableToRetrieveIdentifierException {
         try {
-            CosmosItemResponse<CosmosTokenItem> response = getContainer(STORAGE_IDENTIFIER_NAME)
+            CosmosItemResponse<CosmosTokenItem> response = container
                     .readItem(STORAGE_IDENTIFIER_ID,
                               new PartitionKey(STORAGE_IDENTIFIER_ID),
                               CosmosTokenItem.class)
@@ -397,7 +408,7 @@ public class CosmosTokenStore implements TokenStore {
             if (isNull(configToken)) {
                 return Optional.empty();
             }
-            return Optional.ofNullable(configToken.get(STORAGE_IDENTIFIER_NAME));
+            return Optional.ofNullable(configToken.get(STORAGE_IDENTIFIER_KEY));
         } catch (CosmosException e) {
             setStorageIdentifier();
             return retrieveStorageIdentifier();
@@ -413,13 +424,14 @@ public class CosmosTokenStore implements TokenStore {
      * </p>
      * The {@code claimTimeout} is defaulted to a 10 seconds duration (by using {@link Duration#ofSeconds(long)},
      * {@code nodeId} is defaulted to the {@code ManagementFactory#getRuntimeMXBean#getName} output, the {@link String}
-     * database name defaults to 'axon-tokenstore'. The {@link CosmosAsyncClient} and {@link Serializer} are <b>hard
-     * requirements</b> and as such should be provided.
+     * database name defaults to 'axon', the {@link String} container name defaults to 'tokenstore'. The
+     * {@link CosmosAsyncClient} and {@link Serializer} are <b>hard requirements</b> and as such should be provided.
      */
     public static class Builder {
 
         private CosmosAsyncClient client;
-        private String databaseName = "axon-tokenstore";
+        private String databaseName = "axon";
+        private String containerName = "tokenstore";
         private Serializer serializer;
         private TemporalAmount claimTimeout = Duration.ofSeconds(10);
         private String nodeId = ManagementFactory.getRuntimeMXBean().getName();
@@ -437,7 +449,7 @@ public class CosmosTokenStore implements TokenStore {
         }
 
         /**
-         * Sets the {@link String} with the database name to be used.
+         * Sets the {@link String} with the database name to be used. Defaults to {@code axon}.
          *
          * @param databaseName the {@link String} value of the database name.
          * @return the current Builder instance, for fluent interfacing
@@ -445,6 +457,18 @@ public class CosmosTokenStore implements TokenStore {
         public Builder databaseName(String databaseName) {
             assertNonEmpty(databaseName, "The database name should not be null or empty");
             this.databaseName = databaseName;
+            return this;
+        }
+
+        /**
+         * Sets the {@link String} with the container name to be used. Defaults to {@code tokenstore}.
+         *
+         * @param containerName the {@link String} value of the container name.
+         * @return the current Builder instance, for fluent interfacing
+         */
+        public Builder containerName(String containerName) {
+            assertNonEmpty(containerName, "The container name should not be null or empty");
+            this.containerName = containerName;
             return this;
         }
 

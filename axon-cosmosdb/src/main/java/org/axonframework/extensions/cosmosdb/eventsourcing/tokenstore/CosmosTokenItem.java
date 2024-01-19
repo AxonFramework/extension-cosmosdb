@@ -30,6 +30,8 @@ import java.util.Arrays;
 public class CosmosTokenItem {
 
     private String id;
+    private String processorName;
+    private int segment;
     private byte[] token;
     private String tokenType;
     private String owner;
@@ -50,8 +52,10 @@ public class CosmosTokenItem {
      * @param tokenType the {@link String} token type, can be null if there is no token yet.
      * @param owner     the {@link String} owner of the token, can be null if there is no owner.
      */
-    public CosmosTokenItem(int segment, byte[] token, String tokenType, String owner) {
-        this.id = Integer.toString(segment);
+    public CosmosTokenItem(String processorName, int segment, byte[] token, String tokenType, String owner) {
+        this.id = processorName + segment;
+        this.processorName = processorName;
+        this.segment = segment;
         this.token = token;
         this.tokenType = tokenType;
         this.owner = owner;
@@ -66,8 +70,8 @@ public class CosmosTokenItem {
      * @param tokenType the {@link String} token type, can be null if there is no token yet.
      * @return the new {@link CosmosTokenItem} item
      */
-    public static CosmosTokenItem initialToken(int segment, byte[] token, String tokenType) {
-        return new CosmosTokenItem(segment, token, tokenType, null);
+    public static CosmosTokenItem initialToken(String processorName, int segment, byte[] token, String tokenType) {
+        return new CosmosTokenItem(processorName, segment, token, tokenType, null);
     }
 
     /**
@@ -77,7 +81,8 @@ public class CosmosTokenItem {
      */
     public CosmosTokenItem release() {
         return new CosmosTokenItem(
-                this.getSegment(),
+                this.processorName,
+                this.segment,
                 this.token,
                 this.tokenType,
                 null
@@ -92,7 +97,8 @@ public class CosmosTokenItem {
      */
     public CosmosTokenItem withOwner(String owner) {
         return new CosmosTokenItem(
-                this.getSegment(),
+                this.processorName,
+                this.segment,
                 this.token,
                 this.tokenType,
                 owner
@@ -106,7 +112,8 @@ public class CosmosTokenItem {
      */
     public CosmosTokenItem extend() {
         return new CosmosTokenItem(
-                this.getSegment(),
+                this.processorName,
+                this.segment,
                 this.token,
                 this.tokenType,
                 this.owner
@@ -123,11 +130,20 @@ public class CosmosTokenItem {
     }
 
     /**
+     * Gets the processor name.
+     *
+     * @return the {@link String} of the processor name
+     */
+    public String getProcessorName() {
+        return processorName;
+    }
+
+    /**
      * Gets the segment.
      * @return the {@code int} of the segment
      */
     public int getSegment() {
-        return Integer.parseInt(id);
+        return segment;
     }
 
     /**
@@ -175,6 +191,26 @@ public class CosmosTokenItem {
     /**
      * Needed for Jackson serialisation, don't use in code.
      *
+     * @param processorName the {@link String} representing the processor name.
+     */
+    @SuppressWarnings("unused")
+    void setProcessorName(String processorName) {
+        this.processorName = processorName;
+    }
+
+    /**
+     * Needed for Jackson serialisation, don't use in code.
+     *
+     * @param segment the {@code int} representing the segment
+     */
+    @SuppressWarnings("unused")
+    void setSegment(int segment) {
+        this.segment = segment;
+    }
+
+    /**
+     * Needed for Jackson serialisation, don't use in code.
+     *
      * @param token the {@code byte[]} representing the serialized token in the serialized format
      */
     @SuppressWarnings("unused")
@@ -215,7 +251,9 @@ public class CosmosTokenItem {
     @Override
     public String toString() {
         return "CosmosTokenItem{" +
-                "segment='" + id + '\'' +
+                "id='" + id + '\'' +
+                ", processorName='" + processorName + '\'' +
+                ", segment='" + segment + '\'' +
                 ", token='" + Arrays.toString(token) + '\'' +
                 ", tokenType='" + tokenType + '\'' +
                 ", owner='" + owner + '\'' +
