@@ -46,6 +46,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -294,7 +295,9 @@ public class CosmosTokenStore implements TokenStore {
                 .createDatabaseIfNotExists(databaseName)
                 .map(r -> client.getDatabase(r.getProperties().getId()))
                 .block();
-        assert database != null;
+        if (Objects.isNull(database)) {
+            throw new AxonConfigurationException("Could not get Cosmos DB database, method returned null.");
+        }
         return database;
     }
 
