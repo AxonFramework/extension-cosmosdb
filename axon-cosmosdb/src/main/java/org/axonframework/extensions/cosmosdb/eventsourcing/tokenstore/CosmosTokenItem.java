@@ -18,6 +18,8 @@ package org.axonframework.extensions.cosmosdb.eventsourcing.tokenstore;
 
 import java.time.Instant;
 import java.util.Arrays;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Class used with the {@link CosmosTokenStore} to store and retrieve the tokens from Cosmos DB. There are both
@@ -47,12 +49,18 @@ public class CosmosTokenItem {
     /**
      * Typical constructor used from the token store to create the initial items.
      *
+     * @param processorName the {@link String} representation if the processor name, can't be null.
      * @param segment   the {@code segment} of the token, can't be null as it's also the id.
      * @param token     the {@code byte[]} serialized token, can be null if there is no token yet.
      * @param tokenType the {@link String} token type, can be null if there is no token yet.
      * @param owner     the {@link String} owner of the token, can be null if there is no owner.
      */
-    public CosmosTokenItem(String processorName, int segment, byte[] token, String tokenType, String owner) {
+    public CosmosTokenItem(
+            @Nonnull String processorName,
+            int segment,
+            byte[] token,
+            @Nullable String tokenType,
+            @Nullable String owner) {
         this.id = processorName + segment;
         this.processorName = processorName;
         this.segment = segment;
@@ -65,12 +73,18 @@ public class CosmosTokenItem {
     /**
      * Created a token without an owner, like needed for the initial tokens.
      *
+     * @param processorName the {@link String} representation if the processor name, can't be null.
      * @param segment   the {@code segment} of the token, can't be null as it's also the id.
      * @param token     the {@code byte[]} serialized token, can be null if there is no token yet.
      * @param tokenType the {@link String} token type, can be null if there is no token yet.
      * @return the new {@link CosmosTokenItem} item
      */
-    public static CosmosTokenItem initialToken(String processorName, int segment, byte[] token, String tokenType) {
+    public static CosmosTokenItem initialToken(
+            @Nonnull String processorName,
+            int segment,
+            byte[] token,
+            @Nullable String tokenType
+    ) {
         return new CosmosTokenItem(processorName, segment, token, tokenType, null);
     }
 
@@ -125,15 +139,18 @@ public class CosmosTokenItem {
      *
      * @return the {@link String} value if the id, which is based on the {@code segment}
      */
+    @Nonnull
     public String getId() {
         return id;
     }
 
     /**
-     * Gets the processor name.
+     * Gets the processor name. Needed for Jackson serialisation.
      *
      * @return the {@link String} of the processor name
      */
+    @Nonnull
+    @SuppressWarnings("unused")
     public String getProcessorName() {
         return processorName;
     }
@@ -158,6 +175,7 @@ public class CosmosTokenItem {
      * Gets the token type.
      * @return the {@link String} value of the token type, used to deserialize the token to a class instance.
      */
+    @Nullable
     public String getTokenType() {
         return tokenType;
     }
@@ -166,6 +184,7 @@ public class CosmosTokenItem {
      * Gets the owner
      * @return the {@link String} of the owner.
      */
+    @Nullable
     public String getOwner() {
         return owner;
     }
@@ -174,6 +193,7 @@ public class CosmosTokenItem {
      * Gets the timestamp
      * @return the {@link Instant} of the timestamp, this is the time the instance was created.
      */
+    @Nonnull
     public Instant getTimestamp() {
         return timestamp;
     }
@@ -184,7 +204,7 @@ public class CosmosTokenItem {
      * @param id the {@link String} representing the id in the serialized format
      */
     @SuppressWarnings("unused")
-    void setId(String id) {
+    void setId(@Nonnull String id) {
         this.id = id;
     }
 
@@ -194,7 +214,7 @@ public class CosmosTokenItem {
      * @param processorName the {@link String} representing the processor name.
      */
     @SuppressWarnings("unused")
-    void setProcessorName(String processorName) {
+    void setProcessorName(@Nonnull String processorName) {
         this.processorName = processorName;
     }
 
@@ -224,7 +244,7 @@ public class CosmosTokenItem {
      * @param tokenType the {@link String} representing the token type in the serialized format
      */
     @SuppressWarnings("unused")
-    void setTokenType(String tokenType) {
+    void setTokenType(@Nullable String tokenType) {
         this.tokenType = tokenType;
     }
 
@@ -234,7 +254,7 @@ public class CosmosTokenItem {
      * @param owner the {@link String} representing the owner in the serialized format
      */
     @SuppressWarnings("unused")
-    void setOwner(String owner) {
+    void setOwner(@Nullable String owner) {
         this.owner = owner;
     }
 
@@ -244,7 +264,7 @@ public class CosmosTokenItem {
      * @param timestamp the {@link Instant} representing the timestamp in the serialized format
      */
     @SuppressWarnings("unused")
-    void setTimestamp(Instant timestamp) {
+    void setTimestamp(@Nonnull Instant timestamp) {
         this.timestamp = timestamp;
     }
 
