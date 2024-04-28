@@ -50,7 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Main -->
         <axon.version>4.9.2</axon.version>
-        <azure.version>1.2.22</azure.version>
+        <azure.version>1.2.23</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.23.1</log4j.version>
@@ -58,7 +58,7 @@
         <jackson.version>2.16.0</jackson.version>
         <!-- Spring -->
         <spring.version>5.3.34</spring.version>
-        <spring.boot.version>2.7.18</spring.boot.version>
+        <spring.boot.version>3.2.5</spring.boot.version>
         <!-- Other -->
         <commons-io.version>2.16.1</commons-io.version>
         <javax.inject.version>1</javax.inject.version>
