@@ -39,8 +39,8 @@
 
     <properties>
         <axon.version>4.9.2</axon.version>
-        <testcontainers.version>1.19.7</testcontainers.version>
-        <spring-cloud-azure.version>5.11.0</spring-cloud-azure.version>
+        <testcontainers.version>1.19.8</testcontainers.version>
+        <spring-cloud-azure.version>5.12.0</spring-cloud-azure.version>
         <!-- Build / Plugin -->
         <jacoco-maven.version>0.8.11</jacoco-maven.version>
         <maven-jar.version>3.4.1</maven-jar.version>
