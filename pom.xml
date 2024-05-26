@@ -50,15 +50,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Main -->
         <axon.version>4.9.2</axon.version>
-        <azure.version>1.2.22</azure.version>
+        <azure.version>1.2.23</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.23.1</log4j.version>
         <!-- Serialization -->
         <jackson.version>2.16.0</jackson.version>
         <!-- Spring -->
-        <spring.version>5.3.34</spring.version>
-        <spring.boot.version>2.7.18</spring.boot.version>
+        <spring.version>5.3.36</spring.version>
+        <spring.boot.version>3.3.0</spring.boot.version>
         <!-- Other -->
         <commons-io.version>2.16.1</commons-io.version>
         <javax.inject.version>1</javax.inject.version>
@@ -67,8 +67,8 @@
         <!-- Testing -->
         <awaitility.version>4.2.0</awaitility.version>
         <junit.jupiter.version>5.10.1</junit.jupiter.version>
-        <mockito.version>5.11.0</mockito.version>
-        <testcontainers.version>1.19.7</testcontainers.version>
+        <mockito.version>5.12.0</mockito.version>
+        <testcontainers.version>1.19.8</testcontainers.version>
         <!-- Build / Plugins -->
         <jacoco-maven.version>0.8.11</jacoco-maven.version>
         <maven-assembly.version>3.7.1</maven-assembly.version>
@@ -78,7 +78,7 @@
         <maven-enforcer.version>3.4.1</maven-enforcer.version>
         <maven-failsafe.version>3.2.5</maven-failsafe.version>
         <maven-gpg.version>3.1.0</maven-gpg.version>
-        <maven-install.version>3.1.1</maven-install.version>
+        <maven-install.version>3.1.2</maven-install.version>
         <maven-jar.version>3.4.1</maven-jar.version>
         <maven-javadoc.version>3.6.3</maven-javadoc.version>
         <maven-release.version>3.0.1</maven-release.version>
