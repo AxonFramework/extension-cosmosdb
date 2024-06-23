@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.3.1</version>
         <relativePath/>
     </parent>
 
@@ -39,12 +39,12 @@
 
     <properties>
         <axon.version>4.9.2</axon.version>
-        <testcontainers.version>1.19.7</testcontainers.version>
-        <spring-cloud-azure.version>5.11.0</spring-cloud-azure.version>
+        <testcontainers.version>1.19.8</testcontainers.version>
+        <spring-cloud-azure.version>5.13.0</spring-cloud-azure.version>
         <!-- Build / Plugin -->
         <jacoco-maven.version>0.8.11</jacoco-maven.version>
-        <maven-jar.version>3.4.1</maven-jar.version>
-        <maven-surefire.version>3.2.5</maven-surefire.version>
+        <maven-jar.version>3.4.2</maven-jar.version>
+        <maven-surefire.version>3.3.0</maven-surefire.version>
         <!-- Test matcher -->
         <pattern.class.test>**/*Test.java</pattern.class.test>
         <pattern.class.integration-test>**/*IntegrationTest.java</pattern.class.integration-test>
