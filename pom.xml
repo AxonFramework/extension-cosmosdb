@@ -49,7 +49,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Main -->
-        <axon.version>4.9.2</axon.version>
+        <axon.version>4.10.0</axon.version>
         <azure.version>1.2.25</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.13</slf4j.version>
