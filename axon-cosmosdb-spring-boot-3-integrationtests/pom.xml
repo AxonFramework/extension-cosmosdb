@@ -38,7 +38,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <axon.version>4.9.2</axon.version>
+        <axon.version>4.10.0</axon.version>
         <testcontainers.version>1.20.0</testcontainers.version>
         <spring-cloud-azure.version>5.14.0</spring-cloud-azure.version>
         <!-- Build / Plugin -->
