@@ -23,9 +23,7 @@ For more information on anything Axon, please visit our website, [http://axoniq.
 
 ## Getting started
 
-The [reference guide](https://docs.axoniq.io) contains a separate chapter for all the extensions.
-The Cosmos DB extension description can be found [here](https://docs.axoniq.io/reference-guide/extensions/cosmosdb).
-This extension only contains a token store and thus is helpful when building projections in Cosmos DB.
+This extension only contains a [token store](https://docs.axoniq.io/axon-framework-reference/development/events/event-processors/streaming/#token-store) and thus is helpful when building projections in Cosmos DB.\
 
 ## Receiving help
 
@@ -33,7 +31,7 @@ Are you having trouble using the extension?
 We'd like to help you out the best we can!
 There are a couple of things to consider when you're traversing anything Axon:
 
-* Checking the [reference guide](https://docs.axoniq.io/reference-guide/extensions/cosmosdb) should be your first stop,
+* Checking the [documentation](https://docs.axoniq.io/home/) should be your first stop,
   as the majority of possible scenarios you might encounter when using Axon should be covered there.
 * If the Reference Guide does not cover a specific topic you would've expected,
   we'd appreciate if you could file an [issue](https://github.com/AxonIQ/reference-guide/issues) about it for us.
