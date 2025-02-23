@@ -68,12 +68,12 @@
         <awaitility.version>4.2.0</awaitility.version>
         <junit.jupiter.version>5.10.1</junit.jupiter.version>
         <mockito.version>5.15.2</mockito.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
+        <testcontainers.version>1.20.5</testcontainers.version>
         <!-- Build / Plugins -->
         <jacoco-maven.version>0.8.11</jacoco-maven.version>
         <maven-assembly.version>3.7.1</maven-assembly.version>
-        <maven-clean.version>3.4.0</maven-clean.version>
-        <maven-compiler.version>3.13.0</maven-compiler.version>
+        <maven-clean.version>3.4.1</maven-clean.version>
+        <maven-compiler.version>3.14.0</maven-compiler.version>
         <maven-deploy.version>3.1.2</maven-deploy.version>
         <maven-enforcer.version>3.5.0</maven-enforcer.version>
         <maven-failsafe.version>3.5.2</maven-failsafe.version>
