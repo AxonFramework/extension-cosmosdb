@@ -50,7 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Main -->
         <axon.version>4.10.0</axon.version>
-        <azure.version>1.2.31</azure.version>
+        <azure.version>1.2.32</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.17</slf4j.version>
         <log4j.version>2.24.3</log4j.version>
@@ -67,8 +67,8 @@
         <!-- Testing -->
         <awaitility.version>4.2.0</awaitility.version>
         <junit.jupiter.version>5.10.1</junit.jupiter.version>
-        <mockito.version>5.15.2</mockito.version>
-        <testcontainers.version>1.20.5</testcontainers.version>
+        <mockito.version>5.16.0</mockito.version>
+        <testcontainers.version>1.20.6</testcontainers.version>
         <!-- Build / Plugins -->
         <jacoco-maven.version>0.8.11</jacoco-maven.version>
         <maven-assembly.version>3.7.1</maven-assembly.version>
