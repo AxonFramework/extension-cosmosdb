@@ -49,7 +49,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Main -->
-        <axon.version>4.10.0</axon.version>
+        <axon.version>4.11.2</axon.version>
         <azure.version>1.2.34</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.17</slf4j.version>
@@ -65,13 +65,13 @@
         <javax.jaxb-api.version>2.3.1</javax.jaxb-api.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <!-- Testing -->
-        <awaitility.version>4.2.0</awaitility.version>
-        <junit.jupiter.version>5.10.1</junit.jupiter.version>
+        <awaitility.version>4.3.0</awaitility.version>
+        <junit.jupiter.version>5.12.2</junit.jupiter.version>
         <mockito.version>5.18.0</mockito.version>
         <testcontainers.version>1.21.0</testcontainers.version>
         <!-- Build / Plugins -->
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
-        <jacoco-maven.version>0.8.11</jacoco-maven.version>
+        <jacoco-maven.version>0.8.13</jacoco-maven.version>
         <maven-assembly.version>3.7.1</maven-assembly.version>
         <maven-clean.version>3.4.1</maven-clean.version>
         <maven-compiler.version>3.14.0</maven-compiler.version>
