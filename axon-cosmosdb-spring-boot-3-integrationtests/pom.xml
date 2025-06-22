@@ -39,7 +39,7 @@
 
     <properties>
         <axon.version>4.11.2</axon.version>
-        <testcontainers.version>1.21.1</testcontainers.version>
+        <testcontainers.version>1.21.2</testcontainers.version>
         <spring-cloud-azure.version>5.22.0</spring-cloud-azure.version>
         <!-- Build / Plugin -->
         <jacoco-maven.version>0.8.13</jacoco-maven.version>
