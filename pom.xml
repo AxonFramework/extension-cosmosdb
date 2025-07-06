@@ -50,7 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Main -->
         <axon.version>4.11.2</axon.version>
-        <azure.version>1.2.35</azure.version>
+        <azure.version>1.2.36</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.17</slf4j.version>
         <log4j.version>2.25.0</log4j.version>
@@ -66,7 +66,7 @@
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <!-- Testing -->
         <awaitility.version>4.3.0</awaitility.version>
-        <junit.jupiter.version>5.13.2</junit.jupiter.version>
+        <junit.jupiter.version>5.13.3</junit.jupiter.version>
         <mockito.version>5.18.0</mockito.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <!-- Build / Plugins -->
@@ -75,7 +75,7 @@
         <maven-assembly.version>3.7.1</maven-assembly.version>
         <maven-clean.version>3.5.0</maven-clean.version>
         <maven-compiler.version>3.14.0</maven-compiler.version>
-        <maven-enforcer.version>3.5.0</maven-enforcer.version>
+        <maven-enforcer.version>3.6.0</maven-enforcer.version>
         <maven-failsafe.version>3.5.3</maven-failsafe.version>
         <maven-gpg.version>3.1.0</maven-gpg.version>
         <maven-install.version>3.1.4</maven-install.version>
@@ -569,7 +569,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.7</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
