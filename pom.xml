@@ -53,7 +53,7 @@
         <azure.version>1.2.36</azure.version>
         <!-- Logging -->
         <slf4j.version>2.0.17</slf4j.version>
-        <log4j.version>2.25.0</log4j.version>
+        <log4j.version>2.25.1</log4j.version>
         <!-- Serialization -->
         <jackson.version>2.16.0</jackson.version>
         <!-- Spring -->
