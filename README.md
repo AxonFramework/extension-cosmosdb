@@ -1,3 +1,13 @@
+# Why is there no release?
+
+The Axon Framework Cosmos DB Extension has never seen a full release.
+We developed the Cosmos Db extension as a trial, to validate if attaching to the Cosmos DB API instead of using Mongo would be more efficient.
+Although some gains were reached, we did not receive any immediate "push" from the community to pursue this extension.
+As such, we never landed on a full release.
+
+Regardless, if you find this repository, and you have genuine interest, be sure to open an issue in here!
+Depending on the use case, we may reconsider proceeding with this extension.
+
 # Axon Framework - Cosmos DB Extension
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.axonframework.extensions.cosmosdb/axon-cosmosdb/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.axonframework.extensions.cosmosdb/axon-cosmosdb/)
