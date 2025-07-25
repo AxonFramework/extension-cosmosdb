@@ -1,4 +1,4 @@
-# Why is there no release?
+# Why are there no releases?
 
 The Axon Framework Cosmos DB Extension has never seen a full release.
 We developed the Cosmos Db extension as a trial, to validate if attaching to the Cosmos DB API instead of using Mongo would be more efficient.
